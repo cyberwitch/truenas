@@ -1,0 +1,119 @@
+services:
+  qbittorrent:
+    image: linuxserver/qbittorrent:5.1.4
+    container_name: qbittorrent
+    environment:
+      - PUID=1033
+      - PGID=65537
+      - TZ=America/Los_Angeles #CHANGE_TO_YOUR_TZ
+      - WEBUI_PORT=8090
+    volumes:
+      - /mnt/fours/arr/qbittorrent:/config
+      - /mnt/fours/media/torrents:/data/torrents
+    ports:
+      - 9854:9854/tcp # Forwarded Port on Router TCP
+      - 9854:9854/udp # Forwarded Port on Router TCP
+      - 8090:8090/tcp # port for qbittorrent webui
+    network_mode: arr_default
+    restart: always
+
+  sabnzbd:
+    image: linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    environment:
+      - PUID=1033
+      - PGID=65537
+      - TZ=America/Los_Angeles #CHANGE_TO_YOUR_TZ
+    volumes:
+      - /mnt/fours/arr/sabnzbd:/config
+      - /mnt/fours/media/usenet:/data/usenet
+    ports:
+      - 8081:8080/tcp
+    network_mode: arr_default
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1033
+      - PGID=65537
+      - TZ=America/Los_Angeles #CHANGE_TO_YOUR_TZ
+    volumes:
+      - /mnt/fours/arr/sonarr:/config
+      - /mnt/fours/media:/data
+    ports:
+      - 8989:8989/tcp
+    network_mode: arr_default
+    security_opt:
+      - no-new-privileges:true
+    restart: always 
+    
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1033
+      - PGID=65537
+      - TZ=America/Los_Angeles #CHANGE_TO_YOUR_TZ
+    volumes:
+      - /mnt/fours/arr/radarr:/config
+      - /mnt/fours/media:/data
+    ports:
+      - 7878:7878/tcp
+    network_mode: arr_default
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  bazarr:
+    image: linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=1033
+      - PGID=65537
+      - TZ=America/Los_Angeles #CHANGE_TO_YOUR_TZ
+    volumes:
+      - /mnt/fours/arr/bazarr:/config
+      - /mnt/fours/media:/data
+    ports:
+      - 6767:6767/tcp
+    network_mode: arr_default
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1033
+      - PGID=65537
+      - TZ=America/Los_Angeles #CHANGE_TO_YOUR_TZ
+    volumes:
+      - /mnt/fours/arr/prowlarr:/config
+    ports:
+      - 9696:9696/tcp
+    network_mode: arr_default
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  unpackerr:
+    image: golift/unpackerr
+    container_name: unpackerr
+    environment:
+      - PUID=1033
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - UN_LOG_FILE=/data/torrents/unpackerr.log
+      - UN_SONARR_0_URL=http://192.168.1.42:8989
+      - UN_RADARR_0_URL=http://172.20.0.1:7878
+    volumes:
+      - /mnt/fours/media:/data
+    network_mode: arr_default
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
